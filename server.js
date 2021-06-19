@@ -4,6 +4,7 @@ const morgan = require("morgan");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const { readdirSync } = require("fs");
+const helmet = require("helmet");
 require("dotenv").config();
 
 //app
@@ -25,6 +26,7 @@ mongoose
 app.use(morgan("dev"));
 app.use(bodyParser.json({ limit: "2mb" }));
 app.use(cors());
+app.use(helmet());
 //Routes middleware
 readdirSync("./routes").map((r) => app.use("/api", require("./routes/" + r)));
 
