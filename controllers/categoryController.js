@@ -8,7 +8,7 @@ exports.create = async (req, res) => {
       name,
       slug: slugify(name).toLowerCase(),
     }).save();
-    res.json(category);
+    res.status(201).json(category);
   } catch (e) {
     res
       .status(400)
