@@ -5,6 +5,7 @@ cloudinary.config = {
   cloud_name: "dvwqfftqw",
   api_key: "923359614497992",
   api_secret: "71P1MOOz0fgPbUidY_e5qIUQ8yk",
+  secure: true,
 };
 
 exports.upload = async (req, res) => {
