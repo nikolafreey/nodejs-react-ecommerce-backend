@@ -22,10 +22,12 @@ const productSchema = new mongoose.Schema(
       lowercase: true,
       index: true,
     },
-    category: {
-      type: ObjectId,
-      ref: "Category",
-    },
+    category: [
+      {
+        type: ObjectId,
+        ref: "Category",
+      },
+    ],
     subCategory: [
       {
         type: ObjectId,
