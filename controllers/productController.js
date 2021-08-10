@@ -59,3 +59,48 @@ exports.update = async (req, res) => {
     return res.status(400).send("Product update failed");
   }
 };
+
+// Without Pagination
+// exports.list = async (req, res) => {
+//   try {
+//     // sort is createdAt/updatedAt    while order is desc/asc and limit will be a number that limits the number
+//     const { sort, order, limit } = req.body;
+//     const products = await Product.find({})
+//       .populate("category")
+//       .populate("subCategory")
+//       .sort([[sort, order]])
+//       .limit(limit)
+//       .exec();
+
+//     res.json(products);
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };
+
+// With Pagination
+exports.list = async (req, res) => {
+  try {
+    // sort is createdAt/updatedAt    while order is desc/asc and limit will be a number that limits the number
+    const { sort, order, page } = req.body;
+    const currentPage = page || 1;
+    const perPage = 3;
+
+    const products = await Product.find({})
+      .skip((currentPage - 1) * perPage)
+      .populate("category")
+      .populate("subCategory")
+      .sort([[sort, order]])
+      .limit(3)
+      .exec();
+
+    res.json(products);
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.productsCount = async (req, res) => {
+  let total = await Product.find({}).estimatedDocumentCount().exec();
+  res.json(total);
+};
