@@ -1,4 +1,5 @@
 const Product = require("../models/productModel");
+const User = require("../models/userModel");
 const slugify = require("slugify");
 
 exports.create = async (req, res) => {
@@ -34,11 +35,11 @@ exports.remove = async (req, res) => {
 };
 
 exports.read = async (req, res) => {
-  const product = await Product.findOne({ slug: req.params.slug })
+  let product = await Product.findOne({ slug: req.params.slug })
     .populate("category")
     .populate("subCategory")
     .exec();
-  return res.json(product);
+  res.json(product);
 };
 
 exports.update = async (req, res) => {
@@ -93,7 +94,6 @@ exports.list = async (req, res) => {
       .sort([[sort, order]])
       .limit(3)
       .exec();
-
     res.json(products);
   } catch (e) {
     console.log(e);
@@ -103,4 +103,56 @@ exports.list = async (req, res) => {
 exports.productsCount = async (req, res) => {
   let total = await Product.find({}).estimatedDocumentCount().exec();
   res.json(total);
+};
+
+exports.productStar = async (req, res) => {
+  const product = await Product.findById(req.params.productId).exec();
+  const user = await User.findOne({ email: req.user.email }).exec();
+  const { star } = req.body;
+
+  //who is updating?
+  //check if currently logged in user have already added rating to this product?
+  let existingRatingObject = product.ratings.find(
+    (element) => element.postedBy.toString() === user._id.toString()
+  );
+
+  //if user hasn`t left rating yet, push it to ratings array
+  if (existingRatingObject === undefined) {
+    let ratingAdded = await Product.findByIdAndUpdate(
+      product._id,
+      {
+        $push: { ratings: { star: star, postedBy: user._id } },
+      },
+      { new: true }
+    ).exec();
+    console.log("ratingAdded", ratingAdded);
+    res.json(ratingAdded);
+  } else {
+    //otherwise update the already existing rating by that given user
+    const ratingUpdated = await Product.updateOne(
+      {
+        ratings: { $elemMatch: existingRatingObject },
+      },
+      { $set: { "ratings.$.star": star } },
+      { new: true }
+    ).exec();
+    console.log("ratingUpdated", ratingUpdated);
+    res.json(ratingUpdated);
+  }
+};
+
+exports.listRelated = async (req, res) => {
+  const product = await Product.findById(req.params.productId).exec();
+
+  const related = await Product.find({
+    _id: { $ne: product._id },
+    category: product.category,
+  })
+    .limit(3)
+    .populate("category")
+    .populate("postedBy")
+    .populate("subCategory")
+    .exec();
+
+  res.json(related);
 };
