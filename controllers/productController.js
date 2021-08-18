@@ -185,8 +185,22 @@ const handlePrice = async (req, res, price) => {
   }
 };
 
+const handleCategory = async (req, res, category) => {
+  try {
+    let products = await Product.find({ category })
+      .populate("category", "_id name")
+      .populate("subCategory", "_id name")
+      .populate("postedBy", "_id name")
+      .exec();
+
+    res.json(products);
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 exports.searchFilters = async (req, res) => {
-  const { query, price } = req.body;
+  const { query, price, category } = req.body;
 
   if (query) {
     await handleQuery(req, res, query);
@@ -194,7 +208,10 @@ exports.searchFilters = async (req, res) => {
 
   // price [10,50] its a range between 2 prices
   if (price) {
-    console.log("price", price);
     await handlePrice(req, res, price);
+  }
+
+  if (category) {
+    await handleCategory(req, res, category);
   }
 };
