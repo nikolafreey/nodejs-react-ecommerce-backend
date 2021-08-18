@@ -8,13 +8,13 @@ const productSchema = new mongoose.Schema(
       trim: true,
       required: true,
       maxlength: 32,
-      text: true,
+      text: true, //This is used by Mongoose when doing querys and for filtering purposes, $text method is used in the find query on a model
     },
     description: {
       type: String,
       required: true,
       maxlength: 2000,
-      text: true,
+      text: true, //This is used by Mongoose when doing querys and for filtering purposes, $text method is used in the find query on a model
     },
     slug: {
       type: String,
