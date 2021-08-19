@@ -255,7 +255,7 @@ const handleShipping = async (req, res, shipping) => {
   }
 };
 
-const handleColor = async (req, res, shipping) => {
+const handleColor = async (req, res, color) => {
   try {
     let products = await Product.find({ color })
       .populate("subCategory", "_id name")
