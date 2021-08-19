@@ -83,7 +83,7 @@ exports.update = async (req, res) => {
 exports.list = async (req, res) => {
   try {
     // sort is createdAt/updatedAt    while order is desc/asc and limit will be a number that limits the number
-    const { sort, order, page } = req.body;
+    const { sort, order, page, stars } = req.body;
     const currentPage = page || 1;
     const perPage = 3;
 
@@ -199,8 +199,50 @@ const handleCategory = async (req, res, category) => {
   }
 };
 
+const handleStar = (req, res, stars) => {
+  Product.aggregate([
+    {
+      $project: {
+        document: "$$ROOT", //Get all the fields of the document without the need to specify each field on its own.
+        floorAverage: {
+          $floor: { $avg: "$ratings.star" },
+        },
+      },
+    },
+    { $match: { floorAverage: stars } },
+  ])
+    .limit(12)
+    .exec((err, aggregate) => {
+      if (err) {
+        console.log(err);
+      }
+      Product.find({ _id: aggregate })
+        .populate("category", "_id name")
+        .populate("subCategory", "_id name")
+        .populate("postedBy", "_id name")
+        .exec((err, products) => {
+          if (err) console.log(err);
+          res.json(products);
+        });
+    });
+};
+
+const handleSubCategory = async (req, res, subCategory) => {
+  try {
+    const products = await Product.find({ subCategory })
+      .populate("subCategory", "_id name")
+      .populate("category", "_id name")
+      .populate("postedBy", "_id name")
+      .exec();
+
+    res.json(products);
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 exports.searchFilters = async (req, res) => {
-  const { query, price, category } = req.body;
+  const { query, price, category, stars, subCategory } = req.body;
 
   if (query) {
     await handleQuery(req, res, query);
@@ -213,5 +255,13 @@ exports.searchFilters = async (req, res) => {
 
   if (category) {
     await handleCategory(req, res, category);
+  }
+
+  if (stars) {
+    await handleStar(req, res, stars);
+  }
+
+  if (subCategory) {
+    await handleSubCategory(req, res, subCategory);
   }
 };
