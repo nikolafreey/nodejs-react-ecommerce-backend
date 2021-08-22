@@ -9,6 +9,7 @@ const {
   getCart,
   emptyCart,
   saveAddress,
+  applyCouponToCart,
 } = require("../controllers/userController");
 
 // router.get("/user", (req, res) => {
@@ -21,5 +22,8 @@ router.post("/user/cart", authCheck, userCart);
 router.get("/user/cart", authCheck, getCart);
 router.delete("/user/cart", authCheck, emptyCart);
 router.post("/user/address", authCheck, saveAddress);
+
+//coupon
+router.post("/user/cart/coupon", authCheck, applyCouponToCart);
 
 module.exports = router;
