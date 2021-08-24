@@ -11,7 +11,11 @@ const {
   saveAddress,
   applyCouponToCart,
   createOrder,
+  createCashOrder,
   getOrders,
+  addToWishList,
+  wishList,
+  removeFromWishList,
 } = require("../controllers/userController");
 
 // router.get("/user", (req, res) => {
@@ -29,7 +33,13 @@ router.post("/user/address", authCheck, saveAddress);
 router.post("/user/cart/coupon", authCheck, applyCouponToCart);
 
 //order
-router.post("/user/order", authCheck, createOrder);
+router.post("/user/order", authCheck, createOrder); //Stripe
+router.post("/user/cash-order", authCheck, createCashOrder); //Cash on Delivery
 router.get("/user/orders", authCheck, getOrders);
+
+//wishlist
+router.post("/user/wishlist", authCheck, addToWishList);
+router.get("/user/wishlist", authCheck, wishList);
+router.put("/user/wishlist/:productId", authCheck, removeFromWishList);
 
 module.exports = router;
